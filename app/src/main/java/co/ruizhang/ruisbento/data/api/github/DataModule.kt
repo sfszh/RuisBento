@@ -15,8 +15,6 @@ val dataModule = module {
     single { provideRetrofit(get(), get()) }
     single { provideRepositoryApi(get()) }
     single<RepositoryRepo> { RepositoryRepoImpl(get()) }
-
-
 }
 
 fun provideGson(): Gson =

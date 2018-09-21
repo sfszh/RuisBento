@@ -6,7 +6,7 @@ interface RepositoryRepo {
     fun loadRepo(): Deferred<List<Repository>>
 }
 
-class RepositoryRepoImpl(val api: RepositoryApi) : RepositoryRepo {
+class RepositoryRepoImpl(private val api: RepositoryApi) : RepositoryRepo {
     override fun loadRepo(): Deferred<List<Repository>> {
         return api.loadRepo()
     }

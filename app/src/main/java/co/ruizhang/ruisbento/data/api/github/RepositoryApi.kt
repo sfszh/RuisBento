@@ -22,6 +22,14 @@ interface RepositoryApi {
 }
 
 
+//interface SuspendingApiClient {
+//
+//    suspend fun login(auth: Authorization) : GithubUser
+//    suspend fun getRepositories(reposUrl: String, auth: Authorization) : List<GithubRepository>
+//    suspend fun searchRepositories(searchQuery: String) : List<GithubRepository>
+//
+//}
+
 
 
 
