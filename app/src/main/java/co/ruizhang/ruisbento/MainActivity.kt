@@ -1,52 +1,39 @@
 package co.ruizhang.ruisbento
 
-import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import co.ruizhang.ruisbento.data.api.github.Api
-import co.ruizhang.ruisbento.data.api.github.provideGson
-import co.ruizhang.ruisbento.data.api.github.provideOkHttpClient
-import co.ruizhang.ruisbento.data.api.github.provideRetrofit
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import co.ruizhang.ruisbento.presentation.RepositoryListViewModel
 import co.ruizhang.ruisbento.databinding.ActivityMainBinding
-import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.android.Main
-import timber.log.Timber
-import kotlin.coroutines.experimental.CoroutineContext
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity(), CoroutineScope {
-    private lateinit var job: Job
-    private val retrofit = provideRetrofit(provideGson(), provideOkHttpClient())
-    private lateinit var githubApi: Api
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+    private val viewModel: RepositoryListViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        githubApi = retrofit.create(Api::class.java)
-        job = Job()
-        Timber.d("bentolog: start")
-        loadDataFromUI()
+        viewModel.repoList.observe(this, Observer { repoList ->
+            val str = repoList.asSequence().map { it.name }.reduce { acc, s -> acc + s }
+            binding.about.text = str
+
+        })
+        viewModel.load()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        job.cancel() // Cancel job on activity destroy. After destroy all children jobs will be cancelled automatically
-    }
-
-    private fun loadDataFromUI() = launch {
-        // <- extension on current activity, launched in the main thread
-        val ioData = withContext(Dispatchers.Default) {
-            githubApi.loadRepo()
-        }
-        // do something else concurrently with I/O
-        val data = ioData.await() // wait for result of I/O
-        Timber.d("bentolog: hahah \n")
-        val str = data.map { it.name }.reduce { acc, s -> acc + s }
-        binding.about.text = str
-    }
+//    private fun loadDataFromUI() = launch {
+//        // <- extension on current activity, launched in the main thread
+//        val ioData = withContext(Dispatchers.Default) {
+//            repo.loadRepo()
+//        }
+//        // do something else concurrently with I/O
+//        val data = ioData.await() // wait for result of I/O
+//        Timber.d("bentolog: hahah \n")
+//        val str = data.asSequence().map { it.name }.reduce { acc, s -> acc + s }
+//        binding.about.text = str
+//    }
 
 
 }
